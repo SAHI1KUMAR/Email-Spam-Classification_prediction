@@ -1,0 +1,106 @@
+he dataset contains 5172 rows and 3002 columns, with the following observations:
+
+Column Breakdown:
+
+The first column, "Email No.", likely represents email identifiers.
+The subsequent columns (e.g., "the", "to", "ect") seem to represent word frequencies or feature counts.
+The last column, "Prediction," is possibly a target variable for classification.
+Data Types:
+
+Most columns are integers (likely word counts).
+One column ("Email No.") is of the object type, which seems to be an identifier.
+Next Steps:
+Data Cleaning:
+Drop unnecessary columns (e.g., "Email No.") if it's not relevant for analysis.
+Exploratory Data Analysis (EDA):
+Analyze the distribution of word frequencies.
+Summarize the target variable ("Prediction") to understand the class distribution.
+Data Visualization:
+Create charts to visualize key findings.
+Machine Learning (if required):
+Use the data for a predictive task (e.g., classifying emails based on "Prediction").
+
+Steps:
+Data Preprocessing:
+
+Clean the data by removing unnecessary columns (e.g., "Email No.").
+Split the dataset into features (X) and the target variable (y).
+Exploratory Data Analysis:
+
+Check for class imbalance in the "Prediction" column.
+Train-Test Split:
+
+Split the dataset into training and testing sets.
+Model Training:
+
+Use a machine learning model like Logistic Regression or Random Forest to classify emails.
+Model Evaluation:
+
+Evaluate the model using metrics like accuracy, precision, recall, and F1-score.
+Save Results:
+
+Provide predictions for a test dataset.
+Let me start implementing the code.
+
+Full Code for Email Spam Classification:
+python
+Copy code
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
+
+# Load the dataset
+file_path = "emails.csv"  # Update with your local file path
+data = pd.read_csv(file_path)
+
+# Step 1: Data Preprocessing
+# Dropping the "Email No." column
+data_cleaned = data.drop(columns=["Email No."])
+
+# Separating features (X) and target (y)
+X = data_cleaned.drop(columns=["Prediction"])
+y = data_cleaned["Prediction"]
+
+# Reducing the dataset size by sampling
+data_sampled = data.sample(frac=0.2, random_state=42)
+X_sampled = data_sampled.drop(columns=["Email No.", "Prediction"])
+y_sampled = data_sampled["Prediction"]
+
+# Reducing features by selecting top 100 columns with the highest variance
+variances = X_sampled.var(axis=0)
+top_features = variances.nlargest(100).index
+X_reduced_sampled = X_sampled[top_features]
+
+# Step 2: Train-Test Split
+X_train, X_test, y_train, y_test = train_test_split(
+    X_reduced_sampled, y_sampled, test_size=0.2, random_state=42, stratify=y_sampled
+)
+
+# Step 3: Model Training - Random Forest Classifier
+rf_model = RandomForestClassifier(random_state=42)
+rf_model.fit(X_train, y_train)
+
+# Step 4: Model Evaluation
+y_pred = rf_model.predict(X_test)
+
+# Metrics
+accuracy = accuracy_score(y_test, y_pred)
+report = classification_report(y_test, y_pred)
+conf_matrix = confusion_matrix(y_test, y_pred)
+
+# Output results
+print("Accuracy:", accuracy)
+print("\nClassification Report:\n", report)
+print("\nConfusion Matrix:\n", conf_matrix)
+Instructions:
+Save the code above in a .py file (e.g., spam_classification.py).
+Ensure the emails.csv file is in the same directory or provide the full path to it in file_path.
+Install the necessary libraries if you haven’t already:
+bash
+Copy code
+pip install pandas scikit-learn
+Run the script using:
+bash
+Copy code
+python spam_classification.py
